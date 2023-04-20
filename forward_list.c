@@ -24,11 +24,16 @@ int forward_list_size(ForwardList *l){
 void forward_list_print(ForwardList *l, void (*print_fn)(data_type)){
     Node *aux = l->head;
     printf("[");
-    while(aux!= NULL){
+    for(int i = 0; i < l->size; i++){
         print_fn(aux->value);
+        if(i == l->size-1){
+            
+        }else{
+            printf(", ");
+        }
         aux = aux->next;
     }
-    printf("]\n");
+    printf("]");
 }
 
 
@@ -39,4 +44,34 @@ void forward_list_destroy(ForwardList *l){
         free(aux);
     }
     free(l);
+}
+
+
+
+/**
+ * @brief Removes all nodes with the given value from the linked list.
+ * Removes all nodes with the given value from the linked list and frees the memory allocated for them.
+ * @param l
+ * Pointer to the linked list.
+ * @param val
+ * Value to be removed from the linked list.
+ */
+void forward_list_remove(ForwardList *l, data_type val){
+    while(l->head!= NULL){
+        if(l->head->value == val){
+            Node *aux = l->head;
+            l->head = l->head->next;
+            free(aux);
+        }else{
+            l->head = l->head->next;
+        }
+    }
+}
+
+
+void forward_list_cat(ForwardList *l, ForwardList *m){
+    while(m->head!= NULL){
+        forward_list_push_front(l, m->head->value);
+        m->head = m->head->next;
+    }
 }
