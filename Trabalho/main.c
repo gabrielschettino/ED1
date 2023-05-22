@@ -19,7 +19,7 @@ int main()
     SparseMatrix *result;
 
     // mostrando matriz 1
-    printf("Matrix 1:\n");
+    printf("matriz 1:\n");
     displayDenseMatrix(matrix1);
     printf("\n");
     // resultado esperado:
@@ -28,7 +28,7 @@ int main()
     // 0.00 0.00 3.00
 
     // mostrando matriz 2
-    printf("Matrix 2:\n");
+    printf("matriz 2:\n");
     displayDenseMatrix(matrix2);
     printf("\n");
     // resultado esperado:
@@ -37,7 +37,7 @@ int main()
     // 0.00 0.00 6.00
 
     // Soma de matrizes
-    printf("Adding matrices:\n");
+    printf("adicionando as matrizes 1 e 2:\n");
     result = addMatrices(matrix1, matrix2);
     displayDenseMatrix(result);
     printf("\n");
@@ -122,9 +122,9 @@ int main()
     displayDenseMatrix(result);
     printf("\n");
     // resultado esperado:
-    // 1.00 0.00 4.00
-    // 0.00 2.00 0.00
-    // 3.00 0.00 0.00
+    // 4.00 0.00 0.00
+    // 0.00 8.00 0.00
+    // 0.00 0.00 8.00
     destroyMatrix(kernel);
     destroyMatrix(result);
 
@@ -140,6 +140,10 @@ int main()
         printf("\n");
         destroyMatrix(readMatrix);
     }
+    // resultado esperado (a propria matriz 1):
+    // 1.00 0.00 0.00
+    // 0.00 2.00 0.00
+    // 0.00 0.00 3.00
 
     // limpando matrizes
     destroyMatrix(matrix1);
