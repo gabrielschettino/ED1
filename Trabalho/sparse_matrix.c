@@ -2,17 +2,15 @@
 #include <stdlib.h>
 #include "sparse_matrix.h"
 
-SparseMatrix *create_matrix(int rows, int cols)
+SparseMatrix *createMatrix(int rows, int cols)
 {
     SparseMatrix *matrix = (SparseMatrix *)malloc(sizeof(SparseMatrix));
     matrix->rows = rows;
     matrix->cols = cols;
 
-    // Allocate memory for the row and column heads arrays
     matrix->rowHeads = (Node **)malloc(rows * sizeof(Node *));
     matrix->colHeads = (Node **)malloc(cols * sizeof(Node *));
 
-    // Initialize all row and column heads to NULL
     for (int i = 0; i < rows; i++)
     {
         matrix->rowHeads[i] = NULL;
@@ -25,10 +23,9 @@ SparseMatrix *create_matrix(int rows, int cols)
     return matrix;
 }
 
-// Function to destroy a sparse matrix and free the allocated memory
-void destroy_matrix(SparseMatrix *matrix)
+void destroyMatrix(SparseMatrix *matrix)
 {
-    // Free the memory for each non-zero element
+    // limpando cada elemento nao igual a zero
     for (int i = 0; i < matrix->rows; i++)
     {
         Node *current = matrix->rowHeads[i];
@@ -40,17 +37,15 @@ void destroy_matrix(SparseMatrix *matrix)
         }
     }
 
-    // Free the memory for the row and column heads arrays
     free(matrix->rowHeads);
     free(matrix->colHeads);
 
-    // Free the memory for the sparse matrix structure
     free(matrix);
 }
 
 void assignValue(SparseMatrix *matrix, int row, int col, float value)
 {
-    // Create a new node for the cell
+    // criando novo node para o valor
     Node *newNode = (Node *)malloc(sizeof(Node));
     newNode->row = row;
     newNode->col = col;
@@ -58,7 +53,7 @@ void assignValue(SparseMatrix *matrix, int row, int col, float value)
     newNode->next_row = NULL;
     newNode->next_col = NULL;
 
-    // Update the row chain
+    // atualizando a cadeia de linhas
     if (matrix->rowHeads[row] == NULL)
     {
         matrix->rowHeads[row] = newNode;
@@ -73,7 +68,7 @@ void assignValue(SparseMatrix *matrix, int row, int col, float value)
         current->next_row = newNode;
     }
 
-    // Update the column chain
+    // atualizando colunas
     if (matrix->colHeads[col] == NULL)
     {
         matrix->colHeads[col] = newNode;
@@ -94,11 +89,10 @@ float readValue(const SparseMatrix *matrix, int row, int col)
     // Check if the cell is within the matrix bounds
     if (row < 0 || row >= matrix->rows || col < 0 || col >= matrix->cols)
     {
-        printf("Error: Cell (%d, %d) is out of bounds.\n", row, col);
-        return 0.0;
+        printf("A celula esta fora dos limites da matriz\n");
+        return 0;
     }
 
-    // Traverse the row chain to find the cell
     Node *current = matrix->rowHeads[row];
     while (current != NULL)
     {
@@ -109,23 +103,20 @@ float readValue(const SparseMatrix *matrix, int row, int col)
         current = current->next_row;
     }
 
-    // Cell not found, it is zero
-    return 0.0;
+    // celula nao encontrada, entao o valor vai ser 0
+    return 0;
 }
 
 SparseMatrix *addMatrices(const SparseMatrix *matrix1, const SparseMatrix *matrix2)
 {
-    // Check if the matrices have compatible dimensions
     if (matrix1->rows != matrix2->rows || matrix1->cols != matrix2->cols)
     {
-        printf("Error: Matrices have incompatible dimensions.\n");
+        printf("As matrizes nao tem dimensões iguais\n");
         return NULL;
     }
 
-    // Create a new sparse matrix to store the result
-    SparseMatrix *result = create_matrix(matrix1->rows, matrix1->cols);
+    SparseMatrix *result = createMatrix(matrix1->rows, matrix1->cols);
 
-    // Loop through the cells of matrix1 and add the corresponding cells from matrix2
     for (int i = 0; i < matrix1->rows; i++)
     {
         Node *current = matrix1->rowHeads[i];
@@ -144,10 +135,9 @@ SparseMatrix *addMatrices(const SparseMatrix *matrix1, const SparseMatrix *matri
 
 SparseMatrix *multiplyByScalar(const SparseMatrix *matrix, float scalar)
 {
-    // Create a new sparse matrix to store the result
-    SparseMatrix *result = create_matrix(matrix->rows, matrix->cols);
+    SparseMatrix *result = createMatrix(matrix->rows, matrix->cols);
 
-    // Loop through the cells of the matrix and multiply each value by the scalar
+    // loop pelos elementos da matriz
     for (int i = 0; i < matrix->rows; i++)
     {
         Node *current = matrix->rowHeads[i];
@@ -166,28 +156,27 @@ SparseMatrix *multiplyByScalar(const SparseMatrix *matrix, float scalar)
 
 SparseMatrix *multiplyMatrices(const SparseMatrix *matrix1, const SparseMatrix *matrix2)
 {
-    // Check if the matrices have compatible dimensions
+    // checando se podem ser multiplicadas
     if (matrix1->cols != matrix2->rows)
     {
-        printf("Error: Matrices have incompatible dimensions.\n");
+        printf("As matrizes nao podem ser multiplicadas!\n");
         return NULL;
     }
 
-    // Create a new sparse matrix to store the result
-    SparseMatrix *result = create_matrix(matrix1->rows, matrix2->cols);
+    SparseMatrix *result = createMatrix(matrix1->rows, matrix2->cols);
 
-    // Loop through the rows of matrix1
+    // loop pelas colunas
     for (int i = 0; i < matrix1->rows; i++)
     {
         Node *currentRow1 = matrix1->rowHeads[i];
 
-        // Loop through the columns of matrix2
+        // loop pelas linhas da segunda
         for (int j = 0; j < matrix2->cols; j++)
         {
             Node *currentCol2 = matrix2->colHeads[j];
-            float value = 0.0;
+            float value = 0;
 
-            // Multiply corresponding cells and accumulate the result
+            // multiplicacao do valor linha x coluna
             while (currentRow1 != NULL && currentCol2 != NULL)
             {
                 if (currentRow1->col == currentCol2->row)
@@ -206,7 +195,7 @@ SparseMatrix *multiplyMatrices(const SparseMatrix *matrix1, const SparseMatrix *
                 }
             }
 
-            // Assign the computed value to the result matrix
+            // setando a celula na matriz resultante
             assignValue(result, i, j, value);
         }
     }
@@ -216,23 +205,22 @@ SparseMatrix *multiplyMatrices(const SparseMatrix *matrix1, const SparseMatrix *
 
 SparseMatrix *pointToPointMultiply(const SparseMatrix *matrix1, const SparseMatrix *matrix2)
 {
-    // Check if the matrices have the same dimensions
+    // checando se as matrizes tem dimensões compatíveis
     if (matrix1->rows != matrix2->rows || matrix1->cols != matrix2->cols)
     {
-        printf("Error: Matrices have different dimensions.\n");
+        printf("matrizes tem dimensões diferentes.\n");
         return NULL;
     }
 
-    // Create a new sparse matrix to store the result
-    SparseMatrix *result = create_matrix(matrix1->rows, matrix1->cols);
+    SparseMatrix *result = createMatrix(matrix1->rows, matrix1->cols);
 
-    // Loop through the cells of matrix1
+    // loop pelas linhas da matriz1
     for (int i = 0; i < matrix1->rows; i++)
     {
         Node *currentRow1 = matrix1->rowHeads[i];
         Node *currentRow2 = matrix2->rowHeads[i];
 
-        // Loop through the cells of the current row
+        // percorrendo as células da linha atual
         while (currentRow1 != NULL && currentRow2 != NULL)
         {
             int col1 = currentRow1->col;
@@ -261,10 +249,9 @@ SparseMatrix *pointToPointMultiply(const SparseMatrix *matrix1, const SparseMatr
 
 SparseMatrix *swapRows(const SparseMatrix *matrix, int row1, int row2)
 {
-    // Create a new sparse matrix with the same dimensions as the input matrix
-    SparseMatrix *result = create_matrix(matrix->rows, matrix->cols);
+    SparseMatrix *result = createMatrix(matrix->rows, matrix->cols);
 
-    // Copy the values from the input matrix to the result matrix
+    // copia os valores da matriz original para a matriz resultante
     for (int i = 0; i < matrix->rows; i++)
     {
         Node *current = matrix->rowHeads[i];
@@ -293,17 +280,16 @@ SparseMatrix *sliceMatrix(const SparseMatrix *matrix, int startRow, int startCol
 {
     if (startRow < 0 || startCol < 0 || endRow >= matrix->rows || endCol >= matrix->cols || startRow > endRow || startCol > endCol)
     {
-        printf("Error: Invalid slice coordinates.\n");
+        printf("Coordenadas de slice inválidas.\n");
         return NULL;
     }
 
     int numRows = endRow - startRow + 1;
     int numCols = endCol - startCol + 1;
 
-    // Create a new sparse matrix for the sliced submatrix
-    SparseMatrix *result = create_matrix(numRows, numCols);
+    SparseMatrix *result = createMatrix(numRows, numCols);
 
-    // Traverse the cells of the original matrix and copy the relevant cells to the result matrix
+    // copia as células relevantes da matriz original para a matriz resultante
     for (int i = startRow; i <= endRow; i++)
     {
         Node *current = matrix->rowHeads[i];
@@ -327,16 +313,14 @@ SparseMatrix *sliceMatrix(const SparseMatrix *matrix, int startRow, int startCol
 
 SparseMatrix *transposeMatrix(const SparseMatrix *matrix)
 {
-    // Create a new sparse matrix with swapped dimensions
-    SparseMatrix *result = create_matrix(matrix->cols, matrix->rows);
+    SparseMatrix *result = createMatrix(matrix->cols, matrix->rows);
 
-    // Traverse the cells of the original matrix and assign them to the transposed matrix
     for (int i = 0; i < matrix->rows; i++)
     {
         Node *current = matrix->rowHeads[i];
         while (current != NULL)
         {
-            int row = current->col; // Swap row and column indices
+            int row = current->col; // trocando os indices
             int col = current->row;
             float value = current->value;
             assignValue(result, row, col, value);
@@ -383,14 +367,13 @@ SparseMatrix *convolution(const SparseMatrix *matrix, const SparseMatrix *kernel
     int kernelRows = kernel->rows;
     int kernelCols = kernel->cols;
 
-    // Create a new matrix for the output
-    SparseMatrix *result = create_matrix(matrixRows, matrixCols);
+    SparseMatrix *result = createMatrix(matrixRows, matrixCols);
 
     for (int i = 0; i < matrixRows; i++)
     {
         for (int j = 0; j < matrixCols; j++)
         {
-            float sum = 0.0;
+            float sum = 0;
 
             for (int k = 0; k < kernelRows; k++)
             {
@@ -400,13 +383,14 @@ SparseMatrix *convolution(const SparseMatrix *matrix, const SparseMatrix *kernel
                     int col = j - kernelCols / 2 + l;
 
                     float kernelValue = readValue(kernel, k, l);
-                    float matrixValue = 0.0;
+                    float matrixValue = 0;
 
                     if (row >= 0 && row < matrixRows && col >= 0 && col < matrixCols)
                     {
                         matrixValue = readValue(matrix, row, col);
                     }
 
+                    // stackando a soma pra cada termo do kernel
                     sum += kernelValue * matrixValue;
                 }
             }
@@ -416,4 +400,76 @@ SparseMatrix *convolution(const SparseMatrix *matrix, const SparseMatrix *kernel
     }
 
     return result;
+}
+
+void saveSparseMatrix(const SparseMatrix *matrix, const char *filename)
+{
+    FILE *file = fopen(filename, "wb");
+
+    if (file == NULL)
+    {
+        printf("Erro ao abrir arquivo \n");
+        return;
+    }
+
+    int rows = matrix->rows;
+    int cols = matrix->cols;
+
+    fwrite(&rows, sizeof(int), 1, file);
+    fwrite(&cols, sizeof(int), 1, file);
+
+    // escrevendo os valores nao nulos
+    for (int i = 0; i < rows; i++)
+    {
+        Node *node = matrix->rowHeads[i];
+
+        while (node != NULL)
+        {
+            int row = node->row;
+            int col = node->col;
+            float value = node->value;
+
+            fwrite(&row, sizeof(int), 1, file);
+            fwrite(&col, sizeof(int), 1, file);
+            fwrite(&value, sizeof(float), 1, file);
+
+            node = node->next_col;
+        }
+    }
+
+    fclose(file);
+}
+
+SparseMatrix *readSparseMatrix(const char *filename)
+{
+    FILE *file = fopen(filename, "rb");
+
+    if (file == NULL)
+    {
+        printf("Erro ao abrir arquivo \n");
+        return NULL;
+    }
+
+    int rows, cols;
+
+    // lendo as dimensões da matriz
+    fread(&rows, sizeof(int), 1, file);
+    fread(&cols, sizeof(int), 1, file);
+
+    SparseMatrix *matrix = createMatrix(rows, cols);
+
+    int row, col;
+    float value;
+
+    // Lendo os valores nao nulos, na forma esparsa
+    while (fread(&row, sizeof(int), 1, file) == 1 &&
+           fread(&col, sizeof(int), 1, file) == 1 &&
+           fread(&value, sizeof(float), 1, file) == 1)
+    {
+        assignValue(matrix, row, col, value);
+    }
+
+    fclose(file);
+
+    return matrix;
 }
