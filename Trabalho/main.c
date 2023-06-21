@@ -37,7 +37,7 @@ int main()
     // 0.00 0.00 6.00
 
     // Soma de matrizes
-    printf("adicionando as matrizes 1 e 2:\n");
+    printf("somando as matrizes 1 e 2:\n");
     result = addMatrices(matrix1, matrix2);
     displayDenseMatrix(result);
     printf("\n");
